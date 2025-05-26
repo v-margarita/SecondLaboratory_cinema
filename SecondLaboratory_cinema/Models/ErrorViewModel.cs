@@ -1,4 +1,4 @@
-namespace SecondLaboratory_cinema.Models
+namespace Cinema_laboratory2.Models
 {
     public class ErrorViewModel
     {

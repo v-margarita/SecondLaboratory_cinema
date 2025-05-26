@@ -27,7 +27,7 @@
                 <td>@item.SeatNumber</td>
                 <td>@item.SessionId</td> <!-- лише ID -->
                 <td>
-                    <a class="btn btn-info" asp-action="Edit" asp-route-id="@item.Id">Редагувати</a>
+                     <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning">Редагувати</a>
                     <form asp-action="Delete" asp-route-id="@item.Id" method="post" style="display:inline">
                         <button class="btn btn-danger" type="submit">Видалити</button>
                     </form>

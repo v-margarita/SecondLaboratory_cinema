@@ -1,8 +1,8 @@
+using Cinema_laboratory2.Models;
 using Microsoft.AspNetCore.Mvc;
-using SecondLaboratory_cinema.Models;
 using System.Diagnostics;
 
-namespace SecondLaboratory_cinema.Controllers
+namespace Cinema_laboratory2.Controllers
 {
     public class HomeController : Controller
     {
@@ -15,13 +15,12 @@ namespace SecondLaboratory_cinema.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            ViewData["Title"] = "Cinema";
+            return RedirectToAction("Index", "Ticket");
+            
         }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+      
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

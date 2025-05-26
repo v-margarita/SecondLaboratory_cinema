@@ -1,0 +1,139 @@
+﻿@model Cinema_laboratory2.ViewModels.TicketEditViewModel
+
+@{
+    ViewData["Title"] = "Редагувати квиток";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-group mb-3">
+                <label asp-for="CinemaId" class="control-label">Кінотеатр</label>
+                <select asp-for="CinemaId" class="form-control" id="cinemaSelect">
+                    <option value="">-- Оберіть кінотеатр --</option>
+                    @foreach (var cinema in ViewBag.Cinemas)
+                    {
+                        <option value="@cinema.Id" selected="@(cinema.Id == Model.CinemaId)">@cinema.Name</option>
+                    }
+                </select>
+                <span asp-validation-for="CinemaId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="SessionId" class="control-label">Сеанс</label>
+                <select asp-for="SessionId" class="form-control" id="sessionSelect" disabled="@(Model.CinemaId == null)">
+                    <option value="">-- Оберіть сеанс --</option>
+                    @if (ViewBag.Sessions != null)
+                    {
+                        foreach (var session in ViewBag.Sessions)
+                        {
+                            <option value="@session.Id" selected="@(session.Id == Model.SessionId)">@session.FullInfo</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="SessionId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="SeatNumber" class="control-label">Номер місця</label>
+                <select asp-for="SeatNumber" class="form-control" id="seatSelect" disabled="@(Model.SessionId == null)">
+                    <option value="">-- Оберіть місце --</option>
+                    @if (ViewBag.AvailableSeats != null)
+                    {
+                        foreach (var seat in ViewBag.AvailableSeats)
+                        {
+                            <option value="@seat" selected="@(seat == Model.SeatNumber)">@seat</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="SeatNumber" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Price" class="control-label">Ціна</label>
+                <input asp-for="Price" class="form-control" />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Зберегти" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Скасувати</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#cinemaSelect').change(function () {
+                var cinemaId = $(this).val();
+                var sessionSelect = $('#sessionSelect');
+
+                if (cinemaId) {
+                    sessionSelect.prop('disabled', false);
+
+                    $.getJSON('/tickets/getsessions/' + cinemaId, function (data) {
+                        var options = '<option value="">-- Оберіть сеанс --</option>';
+                        $.each(data, function (i, session) {
+                            options += '<option value="' + session.id + '">' +
+                                session.movieTitle + ' - ' +
+                                session.startTime + ' - ';
+                        });
+                        sessionSelect.html(options);
+
+                        var modelSessionId = '@Model.SessionId';
+                        if (modelSessionId) {
+                            sessionSelect.val(modelSessionId);
+                        }
+                    }).fail(function () {
+                        sessionSelect.html('<option value="">Помилка завантаження сеансів</option>');
+                    });
+                } else {
+                    sessionSelect.prop('disabled', true).html('<option value="">-- Спочатку оберіть кінотеатр --</option>');
+                    $('#seatSelect').prop('disabled', true).html('<option value="">-- Спочатку оберіть сеанс --</option>');
+                }
+            });
+
+            $('#sessionSelect').change(function () {
+                var sessionId = $(this).val();
+                var seatSelect = $('#seatSelect');
+
+                if (sessionId) {
+                    $.getJSON('/tickets/getavailableseats/' + sessionId, function (data) {
+                        var options = '<option value="">-- Оберіть місце --</option>';
+                        $.each(data, function (i, seat) {
+                            options += '<option value="' + seat + '">' + seat + '</option>';
+                        });
+
+                        // Додаємо поточне місце, якщо його немає у вільних
+                        var currentSeat = '@Model.SeatNumber';
+                        if (currentSeat && !data.includes(currentSeat)) {
+                            options += '<option value="' + currentSeat + '" selected>' + currentSeat + '</option>';
+                        }
+
+                        seatSelect.html(options).prop('disabled', false);
+                    }).fail(function () {
+                        seatSelect.html('<option value="">Помилка завантаження місць</option>');
+                    });
+                } else {
+                    seatSelect.prop('disabled', true).html('<option value="">-- Спочатку оберіть сеанс --</option>');
+                }
+            });
+
+            // Ініціалізація при завантаженні сторінки
+            if ($('#cinemaSelect').val()) {
+                $('#cinemaSelect').trigger('change');
+            }
+        });
+    </script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

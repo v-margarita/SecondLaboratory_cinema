@@ -1,0 +1,29 @@
+﻿@model Cinema_laboratory2.Models.Ticket
+
+@{
+    ViewData["Title"] = "Деталі квитка";
+}
+
+<h2>Деталі квитка</h2>
+
+<div>
+    <h4>Квиток №@Model.Id</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">Ціна</dt>
+        <dd class="col-sm-10">@Model.Price</dd>
+
+        <dt class="col-sm-2">Номер місця</dt>
+        <dd class="col-sm-10">@Model.SeatNumber</dd>
+
+        <dt class="col-sm-2">Сеанс</dt>
+        <dd class="col-sm-10">
+            @Model.Session?.StartTime.ToString("g") – @Model.Session?.Cinema?.Name
+        </dd>
+    </dl>
+</div>
+
+<div>
+    <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.Id">Редагувати</a>
+    <a class="btn btn-secondary" asp-action="Index">Назад до списку</a>
+</div>
